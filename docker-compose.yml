@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Python Flask web application (Milana Superintelligence Hub)
+  milana-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MILANA_SECRET_KEY=${MILANA_SECRET_KEY:-dev-secret}
+    restart: unless-stopped
+
+  # Node.js backend API + frontend serving
+  milana-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    restart: unless-stopped

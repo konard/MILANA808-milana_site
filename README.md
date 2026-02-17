@@ -1,39 +1,14 @@
-# Milana Superintelligence Hub (Python Edition)
+# Milana Superintelligence Hub
 
-[![CI](https://github.com/your-org/milana_site/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/milana_site/actions/workflows/ci.yml)
-[![Vercel Preview](https://img.shields.io/badge/Vercel-preview-black?logo=vercel)](https://milana-site-demo.vercel.app)
+[![CI](https://github.com/MILANA808/milana_site/actions/workflows/ci.yml/badge.svg)](https://github.com/MILANA808/milana_site/actions/workflows/ci.yml)
 
-Milana — это Flask-приложение, которое объединяет суперчат, студию метакода и резонансную консоль AKSI. Вся логика работает на серверной стороне, а пользовательские данные очищаются и защищаются Content-Security-Policy.
+Milana — интегрированная платформа, объединяющая Python Flask веб-приложение и Node.js/FastAPI бэкенд сервис AKSI. Проект вобрал в себя все возможности из репозиториев `milana_site` и `Milana-backend`.
 
-## Живая демо-версия
-
-- **Продакшен:** https://milana-site-demo.vercel.app
-- **Предпросмотр для PR:** автоматически разворачивается через GitHub Actions + Vercel (см. workflow `vercel-preview.yml`).
-
-![Интерфейс чата](docs/screenshots/milana-chat.svg)
-![Metacode Studio](docs/screenshots/milana-metacode.svg)
-![Резонансная консоль](docs/screenshots/milana-resonance.svg)
-
-## Кнопки деплоя
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/milana_site)
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/your-org/milana_site)
-
-Vercel/Netlify функции выступают обязательным прокси-слоем для всех внешних API в продакшене.
-
-## Возможности
-
-- **Суперчат Milana.** Ответы строятся на основе последнего blueprint-а, резонансных сигналов и памяти.
-- **Metacode Studio.** Создание blueprint-ов из модулей, тегов и целей с сохранением истории в сессии.
-- **AKSI Resonance Console.** Расчёт уровней эмпатии, фокуса и риска и генерация рекомендаций для каналов связи.
-- **Когнитивная память.** Автоматическое сохранение инсайтов и их повторное использование в ответах.
-
-## Стек и структура
+## Структура репозитория
 
 ```text
 .
-├── milana_site/
-│   ├── __init__.py        # фабрика Flask-приложения
+├── milana_site/           # Python Flask приложение
 │   ├── app.py             # маршруты, сессии, безопасный ввод
 │   ├── aksi.py            # логика резонансной консоли
 │   ├── chat.py            # генератор ответов суперчата
@@ -41,66 +16,137 @@ Vercel/Netlify функции выступают обязательным про
 │   ├── metacode.py        # модели и студия метакода
 │   ├── security.py        # санитизация данных пользователя
 │   ├── templates/         # HTML-шаблоны (с CSP)
-│   └── static/            # стили
-├── tests/                 # pytest-покрытие маршрутов и логики
-├── .github/workflows/     # CI и превью-деплой
-├── LICENSE                # MIT
-└── README.md
+│   └── static/            # стили Flask-приложения
+├── frontend/              # HTML/JS фронтенд (из Milana-backend)
+│   ├── index.html         # 21 мини-приложение AKSI
+│   ├── styles/main.css    # фиолетовая тема Milana
+│   ├── scripts/           # JS модули (GPT, память, знания, free-tier)
+│   └── assets/            # иконки и манифест
+├── backend/               # Node.js API бэкенд (из Milana-backend)
+│   ├── app.js             # Express сервер + раздача фронтенда
+│   ├── main.py            # FastAPI сервер (альтернативный бэкенд)
+│   ├── requirements.txt   # Python зависимости для FastAPI
+│   ├── routes/            # маршруты: health, version, echo
+│   └── routes/aksi/       # маршруты: proof, logs, metrics
+├── tests/                 # pytest тесты Flask-приложения
+├── Dockerfile             # Docker для Flask-приложения
+├── docker-compose.yml     # Запуск обоих сервисов вместе
+├── pyproject.toml         # Python зависимости
+└── package.json           # npm скрипты
 ```
 
-## Обязательный прокси-сервис
+## Компоненты
 
-| Режим          | Ключ API | Канал вызовов |
-|----------------|----------|---------------|
-| `development`  | допускается прямой ввод ключа через `.env` | Flask-приложение обращается напрямую |
-| `production`   | **только через Vercel/Netlify serverless функции** | фронтенд вызывает `api/chat` → прокси → внешний API |
+### 1. Flask веб-приложение (`milana_site/`)
 
-> Прямой ключ в браузер разрешён исключительно для локальной разработки. В продакшене используйте встроенный serverless-прокси, чтобы скрыть секреты и добавить rate limiting.
+Серверное Python-приложение с полным функционалом:
 
-## Быстрый старт (dev)
+- **Суперчат Milana** — ответы на основе метакода, резонанса и памяти
+- **Metacode Studio** — создание blueprint-ов из модулей и тегов
+- **AKSI Resonance Console** — расчёт эмпатии, фокуса и риска
+- **Когнитивная память** — сохранение инсайтов и их повторное использование
 
-1. Создайте виртуальное окружение и установите зависимости:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -e .[dev]
-   npm ci
-   ```
-2. Запустите все проверки:
-   ```bash
-   npm run lint
-   npm test
-   pytest
-   ```
-3. Стартуйте локальный сервер (допускается прямой ключ `OPENAI_API_KEY` в `.env`):
-   ```bash
-   flask --app milana_site.app run --debug
-   ```
-4. Откройте http://127.0.0.1:5000 и начинайте работу с Milana.
+Запуск:
+```bash
+pip install -e .
+flask --app milana_site.app run --debug
+```
 
-## Тестирование и CI
+Доступно на: http://localhost:5000
 
-- GitHub Actions (`ci.yml`) прогоняет `npm ci`, `npm run lint`, `npm test` и `pytest` на каждом коммите/PR.
-- Workflow `vercel-preview.yml` публикует превью на Vercel для каждого PR.
-- Локально перед коммитом выполняйте те же команды и проверяйте, что скриншоты остаются актуальными.
+### 2. Фронтенд (`frontend/`)
 
-## Безопасность и threat model
+Статический HTML/JS интерфейс с 21 мини-приложением AKSI:
 
-- **XSS:** все пользовательские поля проходят через `milana_site.security.sanitize_text`, а шаблоны защищены `Content-Security-Policy` (только `self`).
-- **CSRF:** SPA без cookies, поэтому риск минимален; все state-changing запросы выполняются через POST формы.
-- **Secrets:** производственные ключи никогда не попадают в браузер — используйте только прокси-функции и переменные окружения платформы.
-- **Transport:** для публичных доменов включайте HTTPS и заголовки безопасности (`Strict-Transport-Security`, `X-Frame-Options`).
+- moodmirror, mindmirror, mindlink, healthscan, mentor, family, aura
+- aksilove, moodradio, aksishopping, aistylist, ecogaze, dreamjournal
+- aksicompanion, dressupar, globalid, aksichat, lifescan, timecapsule
+- telehelp, storyai
 
-## Подготовка к публикации
+Фронтенд раздаётся Node.js бэкендом или может быть открыт напрямую в браузере.
 
-1. Настройте переменные окружения на Vercel/Netlify (`MILANA_SECRET_KEY`, прокси-ключи к внешним API).
-2. Обновите скриншоты после визуальных изменений (`docs/screenshots/*.svg`).
-3. Проверьте чек-лист CI/тестов и выполните smoke-тест по чек-листу из README.
-4. Запустите продакшен-деплой и зафиксируйте ссылку в описании релиза.
+### 3. Node.js API бэкенд (`backend/`)
 
-## Лицензия и участие
+Express-сервер с AKSI API эндпоинтами:
 
-- Проект распространяется по лицензии [MIT](LICENSE).
-- Рекомендации по работе с репозиторием описаны в [CONTRIBUTING.md](CONTRIBUTING.md).
+| Эндпоинт | Метод | Описание |
+|----------|-------|----------|
+| `/` | GET | Раздача фронтенда (index.html) |
+| `/health` | GET | Проверка работоспособности |
+| `/version` | GET | Версия API |
+| `/echo` | POST | Эхо для тестирования |
+| `/aksi/proof` | GET | Доказательство AKSI |
+| `/aksi/proof/stable` | POST | Стабильная запись proof |
+| `/aksi/logs` | GET | Получить логи |
+| `/aksi/logs/append` | POST | Добавить лог |
+| `/aksi/logs/export` | GET | Экспорт логов |
+| `/aksi/metrics` | GET | Метрики AKSI |
 
-Milana создана, чтобы исследовать эмпатию, ясность и резонанс. Делитесь идеями и помогайте развивать экосистему!
+Запуск:
+```bash
+cd backend
+npm install
+node app.js
+```
+
+Доступно на: http://localhost:3000
+
+### 4. FastAPI бэкенд (`backend/main.py`)
+
+Альтернативный Python бэкенд с расширенными возможностями:
+
+- Отслеживание сессий работы AI (`/aksi/ai-work/session`)
+- Управление криптографическими ключами (`/aksi/crypto/keys`)
+- Swagger UI: http://localhost:8000/docs
+
+Запуск:
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+
+Доступно на: http://localhost:8000
+
+## Быстрый старт
+
+### Вариант 1: Docker Compose (оба сервиса)
+
+```bash
+docker-compose up
+```
+
+- Flask приложение: http://localhost:5000
+- Node.js фронтенд + API: http://localhost:3000
+
+### Вариант 2: Локальная разработка
+
+```bash
+# Установка Python зависимостей
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+
+# Запуск Flask приложения
+flask --app milana_site.app run --debug
+
+# В отдельном терминале — Node.js бэкенд
+cd backend && npm install && node app.js
+```
+
+### Тесты
+
+```bash
+pytest                  # тесты Flask-приложения
+```
+
+## Безопасность
+
+- XSS: все поля пользователя проходят через `milana_site.security.sanitize_text`
+- CORS: настроен в Node.js бэкенде для интеграции с фронтендом
+- Secrets: производственные ключи только через переменные окружения
+
+## Лицензия
+
+© 2025 Alfiia Bashirova (AKSI Project). Все права защищены.
+Подробности в [LICENSE](LICENSE).
